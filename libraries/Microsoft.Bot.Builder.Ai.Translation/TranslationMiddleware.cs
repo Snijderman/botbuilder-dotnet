@@ -109,8 +109,7 @@ namespace Microsoft.Bot.Builder.Ai.Translation
         {
             if (context.Activity.Type == ActivityTypes.Message)
             {
-                var message = context.Activity.AsMessageActivity();
-                if (message != null)
+                if (context.Activity is MessageActivity message)
                 {
                     if (!string.IsNullOrWhiteSpace(message.Text))
                     {
@@ -144,9 +143,9 @@ namespace Microsoft.Bot.Builder.Ai.Translation
                                 {
                                     // Translate messages sent to the user to user language
                                     var tasks = new List<Task>();
-                                    foreach (var currentActivity in activities.Where(a => a.Type == ActivityTypes.Message))
+                                    foreach (var currentActivity in activities.OfType<MessageActivity>())
                                     {
-                                        tasks.Add(TranslateMessageAsync(newContext, currentActivity.AsMessageActivity(), targetLanguage, sourceLanguage, false));
+                                        tasks.Add(TranslateMessageAsync(newContext, currentActivity, targetLanguage, sourceLanguage, false));
                                     }
 
                                     if (tasks.Any())
@@ -160,9 +159,9 @@ namespace Microsoft.Bot.Builder.Ai.Translation
                                 context.OnUpdateActivity(async (newContext, activity, nextUpdate) =>
                                 {
                                     // Translate messages sent to the user to user language
-                                    if (activity.Type == ActivityTypes.Message)
+                                    if (activity is MessageActivity messageActivity)
                                     {
-                                        await TranslateMessageAsync(newContext, activity.AsMessageActivity(), targetLanguage, sourceLanguage, false).ConfigureAwait(false);
+                                        await TranslateMessageAsync(newContext, messageActivity, targetLanguage, sourceLanguage, false).ConfigureAwait(false);
                                     }
 
                                     return await nextUpdate();
@@ -238,7 +237,7 @@ namespace Microsoft.Bot.Builder.Ai.Translation
         /// <returns>A task that represents the work queued to execute.</returns>
         /// <remarks>When the task completes successfully, the <see cref="Activity.Text"/> property
         /// of the message contains the translated text.</remarks>
-        private async Task TranslateMessageAsync(ITurnContext context, IMessageActivity message, string sourceLanguage, string targetLanguage, bool inNativeLanguages)
+        private async Task TranslateMessageAsync(ITurnContext context, MessageActivity message, string sourceLanguage, string targetLanguage, bool inNativeLanguages)
         {
             if (!inNativeLanguages && sourceLanguage != targetLanguage)
             {

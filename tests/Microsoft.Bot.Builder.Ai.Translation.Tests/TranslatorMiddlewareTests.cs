@@ -28,10 +28,13 @@ namespace Microsoft.Bot.Builder.Ai.QnA.Tests
 
         public override async Task OnTurnAsync(ITurnContext context, NextDelegate next, CancellationToken cancellationToken)
         {
-            // alter the original utterance before translation. 
-            if (context.Activity.Text == "mañana")
+            if (context.Activity is MessageActivity messageActivity)
             {
-                context.Activity.Text = "para mañana";
+                // alter the original utterance before translation. 
+                if (messageActivity.Text == "mañana")
+                {
+                    messageActivity.Text = "para mañana";
+                }
             }
 
             await base.OnTurnAsync(context, next, cancellationToken);
@@ -74,7 +77,7 @@ namespace Microsoft.Bot.Builder.Ai.QnA.Tests
                 {
                     if (!context.Responded)
                     {
-                        context.SendActivityAsync(context.Activity.AsMessageActivity().Text);
+                        context.SendActivityAsync((context.Activity as MessageActivity).Text);
                     }
 
                     return Task.CompletedTask;
@@ -104,7 +107,7 @@ namespace Microsoft.Bot.Builder.Ai.QnA.Tests
                 {
                     if (!context.Responded)
                     {
-                        context.SendActivityAsync(context.Activity.AsMessageActivity().Text);
+                        context.SendActivityAsync((context.Activity as MessageActivity).Text);
                     }
 
                     return Task.CompletedTask;
@@ -135,7 +138,7 @@ namespace Microsoft.Bot.Builder.Ai.QnA.Tests
                 {
                     if (!context.Responded)
                     {
-                        context.SendActivityAsync(context.Activity.AsMessageActivity().Text);
+                        context.SendActivityAsync((context.Activity as MessageActivity).Text);
                     }
 
                     return Task.CompletedTask;
@@ -166,7 +169,7 @@ namespace Microsoft.Bot.Builder.Ai.QnA.Tests
                 {
                     if (!context.Responded)
                     {
-                        context.SendActivityAsync(context.Activity.AsMessageActivity().Text);
+                        context.SendActivityAsync((context.Activity as MessageActivity).Text);
                     }
 
                     return Task.CompletedTask;
@@ -184,7 +187,7 @@ namespace Microsoft.Bot.Builder.Ai.QnA.Tests
         {
             var changeLang = false; //logic implemented by developper to make a signal for language changing 
             //use a specific message from user to change language 
-            var messageActivity = context.Activity.AsMessageActivity();
+            var messageActivity = context.Activity as MessageActivity;
             if (messageActivity.Text.ToLower().StartsWith("set my language to"))
             {
                 changeLang = true;

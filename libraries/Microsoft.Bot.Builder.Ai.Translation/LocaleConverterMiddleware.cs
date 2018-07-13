@@ -56,25 +56,22 @@ namespace Microsoft.Bot.Builder.Ai.Translation
         /// on the leading edge of the middleware pipeline.</remarks>
         public async Task OnTurnAsync(ITurnContext context, NextDelegate next, CancellationToken cancellationToken)
         {
-            if (context.Activity.Type == ActivityTypes.Message)
+            if (context.Activity is MessageActivity message)
             {
-                var message = context.Activity.AsMessageActivity();
-                if (message != null)
+                if (!String.IsNullOrWhiteSpace(message.Text))
                 {
-                    if (!string.IsNullOrWhiteSpace(message.Text))
+                    bool localeChanged = await _setUserLocale(context);
+                    if (!localeChanged)
                     {
-                        var localeChanged = await _setUserLocale(context).ConfigureAwait(false);
-                        if (!localeChanged)
-                        {
-                            var fromLocale = _getUserLocale(context);
-                            ConvertLocaleMessage(context, fromLocale);
-                        }
-                        else
-                        {
-                            // skip routing in case of user changed the locale
-                            return;
-                        }
+                        string fromLocale = _getUserLocale(context);
+                        ConvertLocaleMessage(context, fromLocale);
                     }
+                    else
+                    {
+                        // skip routing in case of user changed the locale
+                        return;
+                    }
+
                 }
             }
 
@@ -83,12 +80,11 @@ namespace Microsoft.Bot.Builder.Ai.Translation
 
         private void ConvertLocaleMessage(ITurnContext context, string fromLocale)
         {
-            var message = context.Activity.AsMessageActivity();
-            if (message != null)
+            if (context.Activity is MessageActivity message)
             {
                 if (_localeConverter.IsLocaleAvailable(fromLocale) && fromLocale != _toLocale)
                 {
-                    var localeConvertedText = _localeConverter.Convert(message.Text, fromLocale, _toLocale);
+                    string localeConvertedText = _localeConverter.Convert(message.Text, fromLocale, _toLocale);
                     message.Text = localeConvertedText;
                 }
             }

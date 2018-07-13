@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Builder.Ai.Translation;
 using Microsoft.Bot.Builder.Tests;
+using Microsoft.Bot.Schema;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.Bot.Builder.Transcripts.Tests
@@ -38,7 +39,7 @@ namespace Microsoft.Bot.Builder.Transcripts.Tests
             var flow = new TestFlow(adapter, async (context) => {
                 if (!context.Responded)
                 {
-                    await context.SendActivityAsync($"message: {context.Activity.Text}");
+                    await context.SendActivityAsync($"message: {(context.Activity as MessageActivity).Text}");
                 }
             });
 
@@ -66,7 +67,7 @@ namespace Microsoft.Bot.Builder.Transcripts.Tests
             var flow = new TestFlow(adapter, async (context) => {
                 if (!context.Responded)
                 {
-                    await context.SendActivityAsync($"message: {context.Activity.Text}");
+                    await context.SendActivityAsync($"message: {(context.Activity as MessageActivity).Text}");
                 }
             });
 
@@ -87,18 +88,18 @@ namespace Microsoft.Bot.Builder.Transcripts.Tests
             var flow = new TestFlow(adapter, async (context) => {
                 if (!context.Responded)
                 {
-                    await context.SendActivityAsync($"message: {context.Activity.Text}");
+                    await context.SendActivityAsync($"message: {(context.Activity as MessageActivity).Text}");
                 }
             });
 
             await flow.Test(activities, (expected, actual) => {
-                Assert.AreEqual(expected.AsMessageActivity().Text, actual.AsMessageActivity().Text);
+                Assert.AreEqual((expected as MessageActivity).Text, (actual as MessageActivity).Text);
             }).StartTestAsync();
         }
 
         private Task<bool> SetUserLanguage(ITurnContext context)
         {
-            var userMessage = context.Activity.Text.ToLowerInvariant();
+            var userMessage = (context.Activity as MessageActivity).Text.ToLowerInvariant();
             if (userMessage.StartsWith("set language "))
             {
                 context.GetUserState<LanguageState>().Language = userMessage.Substring(13, 5);

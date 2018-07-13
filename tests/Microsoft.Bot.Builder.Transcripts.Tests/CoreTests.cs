@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Builder.Tests;
+using Microsoft.Bot.Schema;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Microsoft.Bot.Builder.Transcripts.Tests
@@ -25,7 +26,7 @@ namespace Microsoft.Bot.Builder.Transcripts.Tests
                 .Use(new CatchExceptionMiddleware());
 
             var flow = new TestFlow(adapter, async (context) => {
-                var userMessage = context.Activity.AsMessageActivity()?.Text;
+                var userMessage = (context.Activity as MessageActivity)?.Text;
                 switch (userMessage)
                 {
                     case "use middleware":
